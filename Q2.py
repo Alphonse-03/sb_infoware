@@ -32,13 +32,18 @@ with open('abc.csv', mode ='r')as file:
         dish_name = rows[0]
         restaurant_name = rows[1]
         customer_name = rows[2]
-
-        cur.execute("SELECT d.id FROM Dishes d JOIN Restaurants r ON d.restaurant_id = r.id WHERE d.name = %s AND r.name = %s", (dish_name, restaurant_name))
-        dish = cur.fetchone()
-
-        if dish:
-            execute("INSERT INTO Orders (dish_id, customer_name) VALUES (%s, %s)", (dish[0], customer_name))
-            conn.commit()
+        if dish_name and restaurant_name:
+            cur.execute("SELECT d.id FROM Dishes d JOIN Restaurants r ON d.restaurant_id = r.id WHERE d.name = %s AND r.name = %s", (dish_name, restaurant_name))
+            dish = cur.fetchone()
+            if not customer_name:
+                customer_name = "Unknown"
+            if dish:
+                cur.execute("INSERT INTO Orders (dish_id, customer_name) VALUES (%s, %s)", (dish[0], customer_name))
+                conn.commit()
+            else:
+                print("The given dish doens't exist in the database or the restaurant is not valid.")
+        else:
+            print("Dish name or restaurant name is missing.")
 
 cur.close()
 conn.close()
